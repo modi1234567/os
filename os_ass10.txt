@@ -1,0 +1,190 @@
+ASSIGNMENT: 7
+Problem Statement:
+
+Kernel space programming: Implement and add a loadable kernel module to Linux kernel, demonstrate using insmod, lsmod and rmmod commands. A sample kernel space program should print the "Hello World" while loading the kernel module and "Goodbye World" while unloading the kernel module.
+
+
+/*Hello.c*/
+
+#include <linux/module.h>    // included for all kernel modules
+#include <linux/kernel.h>    // included for KERN_INFO
+#include <linux/init.h>      // included for __init and __exit macros
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("PVGCOET");
+MODULE_DESCRIPTION("A Simple Hello World module");
+
+static int __init hello_init(void)
+{
+    printk(KERN_INFO "Hello world!\n");
+    return 0;    // Non-zero return means that the module couldn't be loaded.
+}
+
+static void __exit hello_cleanup(void)
+{
+    printk(KERN_INFO "Good Bye.\n");
+}
+
+module_init(hello_init);
+module_exit(hello_cleanup);
+
+
+/*makefile*/
+obj-m += hello.o
+all:
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+clean:
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+
+/*Output*/
+/* loading a kernel with hello world statement */
+lab7@ubuntu:~$ cd osl/
+lab7@ubuntu:~/osl$ ls
+hello.c   hello.mod.c  hello.o   modules.order
+hello.ko  hello.mod.o  Makefile  Module.symvers
+lab7@ubuntu:~/osl$ make
+make -C /lib/modules/2.6.32-38-generic/build M=/home/lab7/osl modules
+make[1]: Entering directory `/usr/src/linux-headers-2.6.32-38-generic'
+  CC [M]  /home/lab7/osl/hello.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /home/lab7/osl/hello.mod.o
+  LD [M]  /home/lab7/osl/hello.ko
+make[1]: Leaving directory `/usr/src/linux-headers-2.6.32-38-generic'
+lab7@ubuntu:~/osl$ lsmod
+Module                  Size  Used by
+binfmt_misc             6587  1 
+vmblock                10766  1 
+vsock                  37070  0 
+vmmemctl                7296  0 
+vmhgfs                 48805  0 
+acpiphp                18284  0 
+snd_ens1371            18910  2 
+gameport                9089  1 snd_ens1371
+snd_ac97_codec        100646  1 snd_ens1371
+ac97_bus                1002  1 snd_ac97_codec
+snd_pcm_oss            35308  0 
+snd_mixer_oss          13746  1 snd_pcm_oss
+snd_pcm                70694  3 snd_ens1371,snd_ac97_codec,snd_pcm_oss
+snd_seq_dummy           1338  0 
+snd_seq_oss            26722  0 
+snd_seq_midi            4557  0 
+snd_rawmidi            19056  2 snd_ens1371,snd_seq_midi
+snd_seq_midi_event      6003  2 snd_seq_oss,snd_seq_midi
+snd_seq                47263  6 snd_seq_dummy,snd_seq_oss,snd_seq_midi,snd_seq_midi_event
+snd_timer              19130  2 snd_pcm,snd_seq
+snd_seq_device          5700  5 snd_seq_dummy,snd_seq_oss,snd_seq_midi,snd_rawmidi,snd_seq
+snd                    54244  14 snd_ens1371,snd_ac97_codec,snd_pcm_oss,snd_mixer_oss,snd_pcm,snd_seq_oss,snd_rawmidi,snd_seq,snd_timer,snd_seq_device
+ppdev                   5259  0 
+fbcon                  35102  71 
+tileblit                1999  1 fbcon
+font                    7557  1 fbcon
+bitblit                 4707  1 fbcon
+softcursor              1189  1 bitblit
+soundcore               6620  1 snd
+psmouse                63677  0 
+snd_page_alloc          7076  1 snd_pcm
+parport_pc             25962  1 
+serio_raw               3978  0 
+intel_agp              24375  1 
+agpgart                31724  1 intel_agp
+lp                      7028  0 
+vga16fb                11385  1 
+i2c_piix4               8335  0 
+vgastate                8961  1 vga16fb
+vmci                   26798  1 vsock
+shpchp                 28835  0 
+parport                32635  3 ppdev,parport_pc,lp
+mptspi                 14652  2 
+mptscsih               31869  1 mptspi
+mptbase                83022  2 mptspi,mptscsih
+floppy                 53016  0 
+scsi_transport_spi     21096  1 mptspi
+vmxnet                 15418  0 
+lab7@ubuntu:~/osl$ sudo insmod hello.ko
+[sudo] password for lab7: 
+lab7@ubuntu:~/osl$ lsmod | tail -2
+scsi_transport_spi     21096  1 mptspi
+vmxnet                 15418  0 
+lab7@ubuntu:~/osl$ dmesg | tail -2
+[   19.977249] eth8: no IPv6 routers present
+[  100.549714] Hello world!
+lab7@ubuntu:~/osl$ 
+
+
+/* output */
+/* Unloading a kernel with Good bye statement */
+lab7@ubuntu:~$ cd osl/
+lab7@ubuntu:~/osl$ ls
+hello.c   hello.mod.c  hello.o   modules.order
+hello.ko  hello.mod.o  Makefile  Module.symvers
+lab7@ubuntu:~/osl$ make
+make -C /lib/modules/2.6.32-38-generic/build M=/home/lab7/osl modules
+make[1]: Entering directory `/usr/src/linux-headers-2.6.32-38-generic'
+  CC [M]  /home/lab7/osl/hello.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /home/lab7/osl/hello.mod.o
+  LD [M]  /home/lab7/osl/hello.ko
+make[1]: Leaving directory `/usr/src/linux-headers-2.6.32-38-generic'
+lab7@ubuntu:~/osl$ lsmod
+Module                  Size  Used by
+binfmt_misc             6587  1 
+vmblock                10766  1 
+vsock                  37070  0 
+vmmemctl                7296  0 
+vmhgfs                 48805  0 
+acpiphp                18284  0 
+snd_ens1371            18910  2 
+gameport                9089  1 snd_ens1371
+snd_ac97_codec        100646  1 snd_ens1371
+ac97_bus                1002  1 snd_ac97_codec
+snd_pcm_oss            35308  0 
+snd_mixer_oss          13746  1 snd_pcm_oss
+snd_pcm                70694  3 snd_ens1371,snd_ac97_codec,snd_pcm_oss
+snd_seq_dummy           1338  0 
+snd_seq_oss            26722  0 
+snd_seq_midi            4557  0 
+snd_rawmidi            19056  2 snd_ens1371,snd_seq_midi
+snd_seq_midi_event      6003  2 snd_seq_oss,snd_seq_midi
+snd_seq                47263  6 snd_seq_dummy,snd_seq_oss,snd_seq_midi,snd_seq_midi_event
+snd_timer              19130  2 snd_pcm,snd_seq
+snd_seq_device          5700  5 snd_seq_dummy,snd_seq_oss,snd_seq_midi,snd_rawmidi,snd_seq
+snd                    54244  14 snd_ens1371,snd_ac97_codec,snd_pcm_oss,snd_mixer_oss,snd_pcm,snd_seq_oss,snd_rawmidi,snd_seq,snd_timer,snd_seq_device
+ppdev                   5259  0 
+fbcon                  35102  71 
+tileblit                1999  1 fbcon
+font                    7557  1 fbcon
+bitblit                 4707  1 fbcon
+softcursor              1189  1 bitblit
+soundcore               6620  1 snd
+psmouse                63677  0 
+snd_page_alloc          7076  1 snd_pcm
+parport_pc             25962  1 
+serio_raw               3978  0 
+intel_agp              24375  1 
+agpgart                31724  1 intel_agp
+lp                      7028  0 
+vga16fb                11385  1 
+i2c_piix4               8335  0 
+vgastate                8961  1 vga16fb
+vmci                   26798  1 vsock
+shpchp                 28835  0 
+parport                32635  3 ppdev,parport_pc,lp
+mptspi                 14652  2 
+mptscsih               31869  1 mptspi
+mptbase                83022  2 mptspi,mptscsih
+floppy                 53016  0 
+scsi_transport_spi     21096  1 mptspi
+vmxnet                 15418  0 
+lab7@ubuntu:~/osl$ sudo rmmod hello.ko
+[sudo] password for lab7: 
+lab7@ubuntu:~/osl$ lsmod | tail -2
+scsi_transport_spi     21096  1 mptspi
+vmxnet                 15418  0 
+lab7@ubuntu:~/osl$ dmesg | tail -2
+[   19.977249] eth8: no IPv6 routers present
+[  100.549714] Good bye!
+lab7@ubuntu:~/osl$ 
+
+

@@ -1,0 +1,46 @@
+
+
+
+
+1)Change your working directory to /usr/src.
+	#cd /usr/src
+
+    sudo rm -rvf linux-loongson-community-3.17.7    //remove linux-loongson-community-3.17.7 
+
+
+2)Extract linux-loongson-community-3.17.7.tar.bz2 using 'tar'
+	#sudo tar -xvf /media/student/HP\ V218G/linux-loongson-community-3.17.7.tar.bz2
+
+3)Change working directory to linux-loongson-community-3.17.7
+	#cd linux-loongson-community-3.17.7/
+
+
+4)Update the system and install necessary packages
+#sudo apt-get update
+#sudo apt-get install gcc
+#sudo apt-get install ncurses-dev
+#sudo apt-get install ncurses5-dev
+ 
+5)Configure the kernel
+ # sudo make menuconfig
+
+   Save the current configuration and exit
+6) Install kernel modules :
+
+ # sudo make
+ # sudo make modules_install
+ # sudo make install
+ 
+7)Reboot your machine.
+
+ #sudo reboot
+ 
+8)Check version.
+
+ #uname -r
+ #loongson-community-3.17.7
+ 
+
+Linux kernel is been compiled and installed , version:-linux-loongson-community-3.17.7 .
+
+
